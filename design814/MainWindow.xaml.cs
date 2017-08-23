@@ -96,28 +96,30 @@ namespace design814
         private void DelegateMethod(object para)
         {
             Point point = (Point)para;
-            if (point.X < 0)
+            point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
+            point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1 - point.Y);
+            if (point.X < image00.Width)
             {
-                point.X = 0;
-                if(point.Y <= 0)
+                point.X = image00.Width;
+                if(point.Y <= image00.Width)
                 {                    
-                    point.Y = 0;
+                    point.Y = image00.Width;
                 }
                 else
                 {
-                    point.Y = richTextBox.ActualHeight;
+                    point.Y = richTextBox.ActualHeight+ image00.Width;
                 }                
             }
-            if(point.X> richTextBox.ActualWidth)
+            if(point.X> richTextBox.ActualWidth+ image00.Width)
             {
-                point.X = richTextBox.ActualWidth;
-                if(point.Y <= 0)
+                point.X = richTextBox.ActualWidth + image00.Width;
+                if(point.Y <= image00.Width)
                 {
-                    point.Y = 0;
+                    point.Y = image00.Width;
                 }
                 else
                 {
-                    point.Y = richTextBox.ActualHeight;
+                    point.Y = richTextBox.ActualHeight+ image00.Width;
                 }
             }
             // lbl.Content = DateTime.Now.ToString();
