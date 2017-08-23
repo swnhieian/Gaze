@@ -54,7 +54,7 @@ namespace design814
                     if (dict.TryGetValue(new MessagePackObject("norm_pos"), out normPos))
                     {
                         List<MessagePackObject> coord = normPos.AsList().ToList(); // 
-                        Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
+                       // Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
                         Random random = new Random();
                         //window.Dispatcher.BeginInvoke(method, new Point(random.Next(0, 500), random.Next(0, 400)));
                         window.Dispatcher.BeginInvoke(method, new Point(Convert.ToInt32(window.ActualWidth*coord[0].AsDouble()), Convert.ToInt32(window.ActualHeight*(1-coord[1].AsDouble()))));
