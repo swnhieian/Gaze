@@ -48,13 +48,13 @@ namespace design814
                 foreach (var data in dataList)
                 {
                     dataNo += 1;
-                    Console.WriteLine(dataNo);
+                   // Console.WriteLine(dataNo);
                     MessagePackObjectDictionary dict = data.AsDictionary();
                     MessagePackObject normPos;
                     if (dict.TryGetValue(new MessagePackObject("norm_pos"), out normPos))
                     {
                         List<MessagePackObject> coord = normPos.AsList().ToList(); // 
-                       // Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
+                    //    Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
                         Random random = new Random();
                         //window.Dispatcher.BeginInvoke(method, new Point(random.Next(0, 500), random.Next(0, 400)));
                         window.Dispatcher.BeginInvoke(method, new Point(coord[0].AsDouble(),coord[1].AsDouble()));

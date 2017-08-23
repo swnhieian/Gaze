@@ -98,6 +98,8 @@ namespace design814
             Point point = (Point)para;
             point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
             point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1 - point.Y);
+            //Console.WriteLine("X=" + point.X + "Y=" + point.Y);
+            //Console.WriteLine("aX=" + richTextBox.ActualWidth + "aY=" + richTextBox.ActualHeight);
             if (point.X < image00.Width)
             {
                 point.X = image00.Width;
@@ -213,8 +215,8 @@ namespace design814
                 //       var point2 = e.GetPosition(richTextBox);
                 var point2 = point;
                 LastMousePoint = point2;
-                Canvas.SetLeft(c, point2.X - 80);
-                Canvas.SetTop(c, point2.Y - 45);
+                Canvas.SetLeft(c, point2.X- image00.Width);
+                Canvas.SetTop(c, point2.Y-image00.Height);
         //    }
         }
 
