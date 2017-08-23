@@ -96,6 +96,30 @@ namespace design814
         private void DelegateMethod(object para)
         {
             Point point = (Point)para;
+            if (point.X < 0)
+            {
+                point.X = 0;
+                if(point.Y <= 0)
+                {                    
+                    point.Y = 0;
+                }
+                else
+                {
+                    point.Y = richTextBox.ActualHeight;
+                }                
+            }
+            if(point.X> richTextBox.ActualWidth)
+            {
+                point.X = richTextBox.ActualWidth;
+                if(point.Y <= 0)
+                {
+                    point.Y = 0;
+                }
+                else
+                {
+                    point.Y = richTextBox.ActualHeight;
+                }
+            }
             // lbl.Content = DateTime.Now.ToString();
             if (m_TextList != null && CIm.CHECKITEM == true && m_TextList.Count > 1)
             {
