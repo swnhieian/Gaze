@@ -45,7 +45,7 @@ namespace design814
                 MsgPack.MessagePackObject gos = mpoDict[new MsgPack.MessagePackObject("gaze_on_srf")]; // choose gaze on suf mode
                 List<MessagePackObject> dataList = gos.AsList().ToList();
                 int dataNo = 0;
-                foreach (var data in dataList)
+                foreach (var data in dataList) // = gaze on suf
                 {
                     dataNo += 1;
                    // Console.WriteLine(dataNo);
@@ -57,7 +57,8 @@ namespace design814
                     //    Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
                         Random random = new Random();
                         //window.Dispatcher.BeginInvoke(method, new Point(random.Next(0, 500), random.Next(0, 400)));
-                        window.Dispatcher.BeginInvoke(method, new Point(coord[0].AsDouble(),coord[1].AsDouble()));
+                        window.Dispatcher.BeginInvoke(method, new Point(coord[0].AsDouble(),coord[1].AsDouble())); // direct + indirect
+
                     }
                     else
                     {

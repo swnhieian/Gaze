@@ -100,30 +100,11 @@ namespace design814
             point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1 - point.Y);
             //Console.WriteLine("X=" + point.X + "Y=" + point.Y);
             //Console.WriteLine("aX=" + richTextBox.ActualWidth + "aY=" + richTextBox.ActualHeight);
-            if (point.X < image00.Width)
-            {
-                point.X = image00.Width;
-                if(point.Y <= image00.Width)
-                {                    
-                    point.Y = image00.Width;
-                }
-                else
-                {
-                    point.Y = richTextBox.ActualHeight+ image00.Width;
-                }                
-            }
-            if(point.X> richTextBox.ActualWidth+ image00.Width)
-            {
-                point.X = richTextBox.ActualWidth + image00.Width;
-                if(point.Y <= image00.Width)
-                {
-                    point.Y = image00.Width;
-                }
-                else
-                {
-                    point.Y = richTextBox.ActualHeight+ image00.Width;
-                }
-            }
+            point.X = Math.Max(point.X, image00.Width);
+            point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth - c.Width);
+            point.Y = Math.Max(point.Y, image00.Height);
+            point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight-c.Height);
+            //Console.WriteLine("{0},{1}", point.X, point.Y);
             // lbl.Content = DateTime.Now.ToString();
             if (m_TextList != null && CIm.CHECKITEM == true && m_TextList.Count > 1)
             {
