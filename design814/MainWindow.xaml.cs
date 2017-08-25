@@ -101,9 +101,9 @@ namespace design814
             //Console.WriteLine("X=" + point.X + "Y=" + point.Y);
             //Console.WriteLine("aX=" + richTextBox.ActualWidth + "aY=" + richTextBox.ActualHeight);
             point.X = Math.Max(point.X, image00.Width);
-            point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth - c.Width);
+            point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth);
             point.Y = Math.Max(point.Y, image00.Height);
-            point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight-c.Height);
+            point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight);
             //Console.WriteLine("{0},{1}", point.X, point.Y);
             // lbl.Content = DateTime.Now.ToString();
             if (m_TextList != null && CIm.CHECKITEM == true && m_TextList.Count > 1)
@@ -196,8 +196,8 @@ namespace design814
                 //       var point2 = e.GetPosition(richTextBox);
                 var point2 = point;
                 LastMousePoint = point2;
-                Canvas.SetLeft(c, point2.X- image00.Width);
-                Canvas.SetTop(c, point2.Y-image00.Height);
+                Canvas.SetLeft(c, point2.X- image00.Width-c.Width/2); // centric point
+                Canvas.SetTop(c, point2.Y-image00.Height-c.Height/2);
         //    }
         }
 
@@ -424,7 +424,7 @@ namespace design814
         private bool SameString = false;                                                //是否找到了相同的子串
         private List<TextRange> Samestringtextrang;
         private bool SpaceFlagtoCircle = true;                                    //true表示进入输入空格之后的选择状态，false表示进入的编辑修改状态
-        private Ellipse c = new Ellipse() { Height = 180, Width = 280, Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),StrokeThickness=2};//tiffiny蓝
+        private Ellipse c = new Ellipse() { Height = /*180*/240, Width = /*280*/350, Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),StrokeThickness=2};//tiffiny蓝
         private Point LastMousePoint;
         private bool SpaceHoldFalg=false;    //true时进入圈内修改并固定圈
         //       private bool MousemoveFlag = false;//true时候可以使用鼠标选中
