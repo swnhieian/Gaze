@@ -93,11 +93,38 @@ namespace design814
                 Thread.Sleep(500);//休眠500ms  
             }*/
         }
+  // divide the canvas into m*n parts
+        private Point DividePart(Point p,int m,int n,double height, double width)
+        {
+            Point a = new Point();
+            double x_interval = width / m;
+            double y_interval = height / m;
+            double x_p = p.X / x_interval;
+            double y_p = p.Y / y_interval;
+            a.X = x_p * x_interval + x_interval / 2;
+            a.Y = y_p * y_interval + y_interval / 2;
+            return a;
+                                                                                                                                               
+        } 
         private void DelegateMethod(object para)
         {
             Point point = (Point)para;
+
+            int proportion =(int) (richTextBox.ActualHeight / richTextBox.ActualWidth);
+            int m = 25;
+            int n = m*proportion;
+
+
+      
             point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
             point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1 - point.Y);
+
+           // Console.WriteLine("{0},{1}", point.X, point.Y);
+
+
+             point = DividePart(point, m, n, richTextBox.ActualHeight, richTextBox.ActualWidth);
+          //  Console.WriteLine("{0},{1}", point.X, point.Y);
+
             //Console.WriteLine("X=" + point.X + "Y=" + point.Y);
             //Console.WriteLine("aX=" + richTextBox.ActualWidth + "aY=" + richTextBox.ActualHeight);
             point.X = Math.Max(point.X, image00.Width);
@@ -1113,7 +1140,7 @@ namespace design814
                 CountRight++;
                 if (CountRight == 1)
                 {
-                    LastKeyDownTime= DateTime.Now.ToString("mmssfff");
+                    LastKeyDownTime= DateTime.Now.ToString("mmssfff");6
                 }
                 else if (CountRight == 3)
                 {

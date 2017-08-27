@@ -51,8 +51,10 @@ namespace design814
                    // Console.WriteLine(dataNo);
                     MessagePackObjectDictionary dict = data.AsDictionary();
                     MessagePackObject normPos;
+                    MessagePackObject time = dict.
                     if (dict.TryGetValue(new MessagePackObject("norm_pos"), out normPos))
                     {
+                        timestamp = dic['base_data']['timestamp'];
                         List<MessagePackObject> coord = normPos.AsList().ToList(); // 
                     //    Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
                         Random random = new Random();
