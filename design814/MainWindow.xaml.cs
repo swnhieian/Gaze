@@ -19,11 +19,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
+
 namespace design814
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
+    /// 
+
+
     public delegate void MyDelegate(Object para);//定义委托  
     class CheckItem
     {
@@ -39,7 +45,7 @@ namespace design814
         private TextRange range;
         private int index;
         private int lineth;
-        Vector3D a = new Vector3D(2, 2, 1);
+       // Vector3D a = new Vector3D(2, 2, 1);
         public TextRange Range
         {
             get { return range; }
@@ -98,8 +104,8 @@ namespace design814
                 Thread.Sleep(500);//休眠500ms  
             }*/
         }
-  // divide the canvas into m*n parts
-        private Point DividePart(Point p,int m,int n,double height, double width)
+        // divide the canvas into m*n parts
+        private Point DividePart(Point p, int m, int n, double height, double width)
         {
             Point a = new Point();
             double x_interval = width / m;
@@ -109,7 +115,7 @@ namespace design814
             a.X = x_p * x_interval + x_interval / 2;
             a.Y = y_p * y_interval + y_interval / 2;
             return a;
-                                                                                                                                               
+
         }
 
         private bool AdjustFlag=false;                              //
@@ -938,7 +944,28 @@ namespace design814
             if (a > b) return a;
             else return b;
         }
-
+        private Point CalPoint(Vector3D a) // use liner algebra to calculate the intersection in 3 dimension and make it to z = x surface
+        {
+            Point projection_screen = new Point();
+            // define left matrix
+            double[] left = new double[6];
+            left[0] = NormalVector3D[0].Y;
+            left[1] = 0 - NormalVector3D[0].X;
+            left[2] = NormalVector3D[0].Z;
+            left[3] =0 -NormalVector3D[0].X;
+            left[4] = NormalVector3D[1].Y;
+            left[5] = 0-NormalVector3D[1].X;
+            var matrixA = new DenseMatrix(3, 2, left);
+            double []right = new double[3];
+            right[0] = NormalVector3D[0].Y * NormalPoint[0].X - NormalVector3D[0].X * NormalPoint[0].Y; // all the point's z should be assigned to zero
+            right[1] = NormalVector3D[0].Z * NormalPoint[0].X - NormalVector3D[0].X * 0;
+            right[2] = NormalVector3D[1].Y * NormalPoint[1].X - NormalVector3D[1].X * NormalPoint[1].Y;
+            var matrixB = new DenseMatrix(3, 1, right);
+            var resultX = matrixA.LU().Solve(matrixB);
+            projection_screen.X = resultX[0,0];
+            projection_screen.Y = resultX[0, 1];
+            return projection_screen;
+        }
         //寻找符合条件的string
         private void FindString(string text, int [] index,string keyword)
         {
