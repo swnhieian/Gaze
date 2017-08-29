@@ -221,12 +221,22 @@ namespace design814
         }//返回值是函数的系数
         private void DelegateMethod(object para)
         {
-            Point point = (Point)para;
+            Point point = new Point(0,0);
+            Vector3D vector3dnow = new Vector3D(0, 0, 0);
+            if (AdjustChoice != 2)
+            {
+                point = (Point)para;
+            }
+            else
+            {
+                vector3dnow = (Vector3D)para;
+            }
+            
 
-            int proportion =(int) (richTextBox.ActualHeight / richTextBox.ActualWidth);
-            int m = 2;
-            int n = m*proportion;
-            n = 2;
+            //int proportion =(int) (richTextBox.ActualHeight / richTextBox.ActualWidth);
+           // int m = 2;
+           // int n = m*proportion;
+          //  n = 2;
 
 
             /* 
@@ -250,7 +260,7 @@ namespace design814
              point2.Y = point2.Y - image00.Height - c.Height / 2;
              LastMousePoint = point2;
              */
-            Point point2;
+            Point point2 = new Point(0,0);
             point.Y = 1 - point.Y;
             //*********************************************************************************************//
             if (AdjustChoice == 0)
@@ -336,6 +346,42 @@ namespace design814
             }
             else
             {
+                if (AdjustPointFlag == false)
+                {
+                    LastVector3d = vector3dnow;
+                    return;
+                }
+                else  //校准完毕之后，利用4个AdjustBasePoint进行校准 
+                      //0    1
+                      //
+                      //2    3
+                {
+
+                   
+
+
+                   // Vector3D vector3dnow = new Vector3D(0, 0, 0);//???
+                    Point point3 = XXX(vector3dnow);
+
+
+
+
+
+
+                    point3.X = Math.Max(point3.X, image00.Width);
+                    point3.X = Math.Min(point3.X, image00.Width + richTextBox.ActualWidth);
+                    point3.Y = Math.Max(point3.Y, image00.Height);
+                    point3.Y = Math.Min(point3.Y, image00.Height + richTextBox.ActualHeight);
+
+                    point3.X = point3.X - image00.Width;
+                    point3.Y = point3.Y - image00.Height;
+
+                    LastMousePoint = point3;
+
+                    point2.X = point3.X - c.Width / 2;
+                    point2.Y = point3.Y - c.Height / 2;
+                    //   LastMousePoint = point2;
+                }
 
             }
             //********************************************************************************************//
@@ -672,6 +718,8 @@ namespace design814
         private int AdjustChoice = 0;//0 表示不校准，1表示使用线性9点校准，2表示使用向量校准
         private Point[] NormalPoint = new Point[4];
         private Vector3D[] NormalVector3D = new Vector3D[4];
+        private bool AdjustPointFlag= false;//表示向量校准的flag,4次校准之后为true
+        private Vector3D LastVector3d;
         //       private bool MousemoveFlag = false;//true时候可以使用鼠标选中
         /// <summary>
         /// 改变关键字字体颜色
@@ -679,146 +727,146 @@ namespace design814
         /// <param name="l">颜色</param>
         /// <param name="keyword">关键字</param>
         /// <returns></returns>
- /*       private void ChangeColor2(RichTextBox richTextBox, Color l, string keyword)
-        {
-            //            SelectSpiltWords = new List<String>();
-            //            SpiltWords = new List<String>();
-            //设置文字指针为Document初始位置           
-            //richBox.Document.FlowDirection 
-            if (keyword == "/r/n") return;          
-            TextPointer position = richTextBox.Document.ContentStart;
-            TextRange textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
-            string Alltext = textRange.Text;
-            Alltext = Alltext.Replace('.', ' ');
-            Alltext = Alltext.Replace(',', ' ');
-            Alltext = Alltext.Replace('!', ' ');
-            int keywordlength = keyword.Length;
+        /*       private void ChangeColor2(RichTextBox richTextBox, Color l, string keyword)
+               {
+                   //            SelectSpiltWords = new List<String>();
+                   //            SpiltWords = new List<String>();
+                   //设置文字指针为Document初始位置           
+                   //richBox.Document.FlowDirection 
+                   if (keyword == "/r/n") return;          
+                   TextPointer position = richTextBox.Document.ContentStart;
+                   TextRange textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
+                   string Alltext = textRange.Text;
+                   Alltext = Alltext.Replace('.', ' ');
+                   Alltext = Alltext.Replace(',', ' ');
+                   Alltext = Alltext.Replace('!', ' ');
+                   int keywordlength = keyword.Length;
 
-            int threshold = 5;
-            if (keyword.Length <= 2) threshold = keyword.Length;
-            int[] index = { 0, 0 };
-            //获得字符
-            //****************
-            //*****************
-            foreach (string a in Alltext.Split(' '))
-            {
-                if (a == "") continue;
-                if (a.Length == 0) continue;
-                if (System.Math.Abs(a.Length - keywordlength) > 4) continue;     //长度相差太多直接剔除
-                if (getEditDistance(a, keyword) <= threshold)
-                {
-                    FindAllMatchedTextRanges(richTextBox, a);
-                    int add = 2;
-                    for (int j = 0; ; j++)
-                    {
-                        index[0] = Alltext.IndexOf(a, j);
-                        index[1] = a.Length;
-                        if ((index[0] == 0 || Alltext[index[0] - 1] == ' ') && (index[0] + index[1] >= Alltext.Length || Alltext[index[0] + index[1]] == ' ')) break;
-                    }
-                    //                    index[0] = text.IndexOf(Temp_SpiltWords[i], 0);
-                    //                    index[1] = Temp_SpiltWords[i].Length;
-                    //                    return;
-                    TextPointer start = position.GetPositionAtOffset(index[0]+add);
-                    add += 2;
-                    TextPointer Midim = start.GetPositionAtOffset(index[1] / 2);
-                    //TextPointer end = start.GetPositionAtOffset(keyword.Length);
-                    TextPointer end = start.GetPositionAtOffset(index[1]);
-                    int tmp_index = GetIndexFromPointer(Midim);
+                   int threshold = 5;
+                   if (keyword.Length <= 2) threshold = keyword.Length;
+                   int[] index = { 0, 0 };
+                   //获得字符
+                   //****************
+                   //*****************
+                   foreach (string a in Alltext.Split(' '))
+                   {
+                       if (a == "") continue;
+                       if (a.Length == 0) continue;
+                       if (System.Math.Abs(a.Length - keywordlength) > 4) continue;     //长度相差太多直接剔除
+                       if (getEditDistance(a, keyword) <= threshold)
+                       {
+                           FindAllMatchedTextRanges(richTextBox, a);
+                           int add = 2;
+                           for (int j = 0; ; j++)
+                           {
+                               index[0] = Alltext.IndexOf(a, j);
+                               index[1] = a.Length;
+                               if ((index[0] == 0 || Alltext[index[0] - 1] == ' ') && (index[0] + index[1] >= Alltext.Length || Alltext[index[0] + index[1]] == ' ')) break;
+                           }
+                           //                    index[0] = text.IndexOf(Temp_SpiltWords[i], 0);
+                           //                    index[1] = Temp_SpiltWords[i].Length;
+                           //                    return;
+                           TextPointer start = position.GetPositionAtOffset(index[0]+add);
+                           add += 2;
+                           TextPointer Midim = start.GetPositionAtOffset(index[1] / 2);
+                           //TextPointer end = start.GetPositionAtOffset(keyword.Length);
+                           TextPointer end = start.GetPositionAtOffset(index[1]);
+                           int tmp_index = GetIndexFromPointer(Midim);
 
-                    TextRange tem = new TextRange(start, end);
+                           TextRange tem = new TextRange(start, end);
 
-                    m_TextList.Add(new M_TEXTList(tem, tmp_index, 1 + ALLlineth - GetLineth(end)));
-                    
-     //   selectcolor(l, tem);
-     //   end = start.GetPositionAtOffset(index[1] + 1);
-     //    position = position.GetNextContextPosition(LogicalDirection.Forward);
-     //    currallNumber++;
-                }
+                           m_TextList.Add(new M_TEXTList(tem, tmp_index, 1 + ALLlineth - GetLineth(end)));
 
- //               TextPointer start = position.GetPositionAtOffset(index[0]);
- //               TextPointer Midim = start.GetPositionAtOffset(index[1] / 2);
-                //TextPointer end = start.GetPositionAtOffset(keyword.Length);
- //               TextPointer end = start.GetPositionAtOffset(index[1]);
- //               int tmp_index = GetIndexFromPointer(Midim);
+            //   selectcolor(l, tem);
+            //   end = start.GetPositionAtOffset(index[1] + 1);
+            //    position = position.GetNextContextPosition(LogicalDirection.Forward);
+            //    currallNumber++;
+                       }
 
- //               TextRange tem = new TextRange(start, end);
+        //               TextPointer start = position.GetPositionAtOffset(index[0]);
+        //               TextPointer Midim = start.GetPositionAtOffset(index[1] / 2);
+                       //TextPointer end = start.GetPositionAtOffset(keyword.Length);
+        //               TextPointer end = start.GetPositionAtOffset(index[1]);
+        //               int tmp_index = GetIndexFromPointer(Midim);
 
- //               m_TextList.Add(new M_TEXTList(tem, tmp_index, 1 + ALLlineth - GetLineth(end)));
- //               selectcolor(l, tem);
-                //                end = start.GetPositionAtOffset(index[1] + 1);
-                //                position = selecta(l, richTextBox, keyword.Length, start, end);
- //               currallNumber++;
+        //               TextRange tem = new TextRange(start, end);
 
-                //               SpiltWords.Add(a);
-            }
+        //               m_TextList.Add(new M_TEXTList(tem, tmp_index, 1 + ALLlineth - GetLineth(end)));
+        //               selectcolor(l, tem);
+                       //                end = start.GetPositionAtOffset(index[1] + 1);
+                       //                position = selecta(l, richTextBox, keyword.Length, start, end);
+        //               currallNumber++;
 
-            if (m_TextList != null && m_TextList.Count > 0)
-            {
-                //重置
-                currNumber = -1;
-                //                SetBackGround(MouseSelectcolor, m_TextList[currNumber]);
+                       //               SpiltWords.Add(a);
+                   }
 
-                //设置最后用户输入的字符-不自身匹配
-                resettext(m_TextList[currallNumber - 1].Range);
+                   if (m_TextList != null && m_TextList.Count > 0)
+                   {
+                       //重置
+                       currNumber = -1;
+                       //                SetBackGround(MouseSelectcolor, m_TextList[currNumber]);
 
-                //设置当前为插入状态
-                //                richTextBox.CaretPosition = richTextBox.Document.ContentEnd;
-            }
-            return ;
-            //************************************************************************************find string
-        }
- */
-/*        private void FindAllMatchedTextRanges(RichTextBox richBox, string keyword)
-        {
- //           List<TextRange> trList = new List<TextRange>();
-            //设置文字指针为Document初始位置
-            TextPointer position = richBox.Document.ContentStart;
-            while (position != null)
-            {
-                //向前搜索,需要内容为Text
-                if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
-                {
-                    //拿出Run的Text
-                    string text = position.GetTextInRun(LogicalDirection.Forward);
-                    //可能包含多个keyword,做遍历查找
-                    int index = 0;
-                    while (index < text.Length)
-                    {
-                        //                   index = text.IndexOf(keyword, index);
-                       
+                       //设置最后用户输入的字符-不自身匹配
+                       resettext(m_TextList[currallNumber - 1].Range);
 
-                        index = text.IndexOf(keyword, index);
-         //               if (((index == 0 || text[index - 1] == ' ') && (index + keyword.Length >= text.Length || text[index + keyword.Length] == ' ')) == false) { index += keyword.Length;continue; } 
-                        if (index == -1)
-                        {
-                            break;
-                        }
-                        else
-                        {
-       //                     index = text.IndexOf(keyword, index);
-                            if (((index == 0 || text[index - 1] == ' ') && (index + keyword.Length >= text.Length || text[index + keyword.Length] == ' ')) == false) { index += keyword.Length; continue; }
-                            //添加为新的Range
-                            TextPointer start = position.GetPositionAtOffset(index);
-                            TextPointer Midim = start.GetPositionAtOffset(keyword.Length / 2);
-                            TextPointer end = start.GetPositionAtOffset(keyword.Length);
-
-                            int tmp_index = GetIndexFromPointer(Midim);
-
-                            TextRange tem = new TextRange(start, end);
-
-                            m_TextList.Add(new M_TEXTList(tem, tmp_index, 1 + ALLlineth - GetLineth(end)));
-                            selectcolor(Selectcolor, tem);
-                            currallNumber++;
-                            index += keyword.Length;
-                        }
-                    }
-                }
-                //文字指针向前偏移
-                position = position.GetNextContextPosition(LogicalDirection.Forward);
-            }
-            return ;
-        }
+                       //设置当前为插入状态
+                       //                richTextBox.CaretPosition = richTextBox.Document.ContentEnd;
+                   }
+                   return ;
+                   //************************************************************************************find string
+               }
         */
+        /*        private void FindAllMatchedTextRanges(RichTextBox richBox, string keyword)
+                {
+         //           List<TextRange> trList = new List<TextRange>();
+                    //设置文字指针为Document初始位置
+                    TextPointer position = richBox.Document.ContentStart;
+                    while (position != null)
+                    {
+                        //向前搜索,需要内容为Text
+                        if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+                        {
+                            //拿出Run的Text
+                            string text = position.GetTextInRun(LogicalDirection.Forward);
+                            //可能包含多个keyword,做遍历查找
+                            int index = 0;
+                            while (index < text.Length)
+                            {
+                                //                   index = text.IndexOf(keyword, index);
+
+
+                                index = text.IndexOf(keyword, index);
+                 //               if (((index == 0 || text[index - 1] == ' ') && (index + keyword.Length >= text.Length || text[index + keyword.Length] == ' ')) == false) { index += keyword.Length;continue; } 
+                                if (index == -1)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+               //                     index = text.IndexOf(keyword, index);
+                                    if (((index == 0 || text[index - 1] == ' ') && (index + keyword.Length >= text.Length || text[index + keyword.Length] == ' ')) == false) { index += keyword.Length; continue; }
+                                    //添加为新的Range
+                                    TextPointer start = position.GetPositionAtOffset(index);
+                                    TextPointer Midim = start.GetPositionAtOffset(keyword.Length / 2);
+                                    TextPointer end = start.GetPositionAtOffset(keyword.Length);
+
+                                    int tmp_index = GetIndexFromPointer(Midim);
+
+                                    TextRange tem = new TextRange(start, end);
+
+                                    m_TextList.Add(new M_TEXTList(tem, tmp_index, 1 + ALLlineth - GetLineth(end)));
+                                    selectcolor(Selectcolor, tem);
+                                    currallNumber++;
+                                    index += keyword.Length;
+                                }
+                            }
+                        }
+                        //文字指针向前偏移
+                        position = position.GetNextContextPosition(LogicalDirection.Forward);
+                    }
+                    return ;
+                }
+                */
         private void ChangeColor(RichTextBox richTextBox,Color l, string keyword)
         {
             //            m_TextList = new List<M_TEXTList>();
@@ -1349,17 +1397,47 @@ namespace design814
                 SpaceHoldFalg = false;
                 richTextBox.CaretPosition = richTextBox.Document.ContentEnd;
             }
-            if (e.Key == Key.V && AdjustFlag == false)//
+            if (AdjustChoice == 1)
             {
-                AdjustBasePoint.Add(LastMousePoint);
-                AdjustCount++;
-                MessageBox.Show("已经校准" + AdjustCount.ToString() + "次");
-                if (AdjustCount == 9)
+
+
+                if (e.Key == Key.V && AdjustFlag == false)//
                 {
-                    AdjustFlag = true;
-                    MessageBox.Show("校准完毕！");
+                    AdjustBasePoint.Add(LastMousePoint);
+                    AdjustCount++;
+                    MessageBox.Show("已经校准" + AdjustCount.ToString() + "次");
+                    if (AdjustCount == 9)
+                    {
+                        AdjustFlag = true;
+                        MessageBox.Show("校准完毕！");
+                        AdjustCount = 0;
+                    }
+                    e.Handled = true;
                 }
-                e.Handled = true;
+            }
+            else if(AdjustChoice == 2)
+            {
+                if (e.Key == Key.V && AdjustPointFlag == false)//
+                {
+                    NormalVector3D[AdjustCount] = LastVector3d;
+                    AdjustCount++;
+                    MessageBox.Show("向量方法已经校准" + AdjustCount.ToString() + "次");
+                    if (AdjustCount == 4)
+                    {
+                        AdjustPointFlag = true;
+                        MessageBox.Show("校准完毕！");
+                        NormalPoint[0].X = 0;
+                        NormalPoint[0].Y = 0;
+                        NormalPoint[1].X = ActualWidth;
+                        NormalPoint[1].Y = 0;
+                        NormalPoint[2].X = 0;
+                        NormalPoint[2].Y = ActualHeight;
+                        NormalPoint[3].X = ActualWidth;
+                        NormalPoint[3].Y = ActualHeight;
+                        AdjustCount = 0;
+                    }
+                    e.Handled = true;
+                }
             }
            // c.Visibility = Visibility.Hidden;
         }
