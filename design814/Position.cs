@@ -45,28 +45,45 @@ namespace design814
                 MsgPack.MessagePackObject gos = mpoDict[new MsgPack.MessagePackObject("gaze_on_srf")]; // choose gaze on suf mode
                 List<MessagePackObject> dataList = gos.AsList().ToList();
                 int dataNo = 0;
+                double interval1;
+                double interval2 = 0;
                 foreach (var data in dataList) // = gaze on suf
                 {
                     dataNo += 1;
                    // Console.WriteLine(dataNo);
                     MessagePackObjectDictionary dict = data.AsDictionary();
                     MessagePackObject normPos;
-                    MessagePackObject time = dict.
-                    if (dict.TryGetValue(new MessagePackObject("norm_pos"), out normPos))
+                    MessagePackObject ts;
+
+                    /*if (dict.TryGetValue(new MessagePackObject("timestamp"), out ts))
                     {
-                        timestamp = dic['base_data']['timestamp'];
+                        double tts = ts.AsDouble();
+                        Console.WriteLine(tts);
+                    }*/
+                    //else tts = "hhhhh";
+                    
+                 //if (dataNo == 1) interval1 = a[0];
+                  //  else interval1 = interval2;
+                  //  interval2 = double.Parse(a);
+                  //  if ((interval2 - interval1) >50)
+                   // { 
+                 //   Console.WriteLine(a);
+              
+                        if (dict.TryGetValue(new MessagePackObject("norm_pos"), out normPos))
+                        {
+                        // timestamp = dic['base_data']['timestamp'];
                         List<MessagePackObject> coord = normPos.AsList().ToList(); // 
                     //    Console.WriteLine("{0},{1}", coord[0].AsDouble(), coord[1].AsDouble());
                         Random random = new Random();
                         //window.Dispatcher.BeginInvoke(method, new Point(random.Next(0, 500), random.Next(0, 400)));
                         window.Dispatcher.BeginInvoke(method, new Point(coord[0].AsDouble(),coord[1].AsDouble())); // direct + indirect
 
-                    }
-                    else
-                    {
-                        throw new Exception("get norm_pos failed!");
-                    }
-
+                        }
+                        else
+                        {
+                            throw new Exception("get norm_pos failed!");
+                        }
+                    //}
                 }
             }
         }

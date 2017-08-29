@@ -29,7 +29,11 @@
             <RichTextBox x:Name="richTextBox" FontFamily="Microsoft YaHei"   PreviewKeyDown="richTextBox_KeyDown" 
                               FontSize="30" Foreground="Black" TextChanged="richTextBox_TextChanged" Grid.Row="2" Grid.Column="1" Height="{Binding ElementName=row1,Path=ActualHeight}"  VerticalAlignment="Top" Width="{Binding ElementName=col1,Path=ActualWidth}" Block.LineHeight="1">
                 <FlowDocument  >
-                    <Paragraph />
+                    <Paragraph>
+                        <Run Text="run re twet eryrt y rtej tierj tjweriot jkwioejtw eyeori oweri pojtierj tiowje tiowejtiojeriotjweitjio jtiojqweirtjqw jteopwj topwetoerjt ijirqji rjweiojiojtioerjtioerj tioerj tioerj tioerjtioerj tjier rtgetger ter tery rtgdfg dfg werwe fdsf sd ew
+                             rwrwer43t ert54 tret ertt43 t34t df er34 rtgdf gretre t34 ttreg df 43r tger greteryer yer ter gerg er">
+                        </Run>
+                    </Paragraph>
                 </FlowDocument>
             </RichTextBox>
         </Canvas>

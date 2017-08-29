@@ -11,10 +11,14 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 //using System.Windows.Threading;
-
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 namespace design814
 {
     /// <summary>
@@ -35,6 +39,7 @@ namespace design814
         private TextRange range;
         private int index;
         private int lineth;
+        Vector3D a = new Vector3D(2, 2, 1);
         public TextRange Range
         {
             get { return range; }
@@ -98,39 +103,248 @@ namespace design814
         {
             Point a = new Point();
             double x_interval = width / m;
-            double y_interval = height / m;
-            double x_p = p.X / x_interval;
-            double y_p = p.Y / y_interval;
+            double y_interval = height / n;
+            int x_p = Convert.ToInt32(p.X / x_interval);
+            int y_p = Convert.ToInt32(p.Y / y_interval);
             a.X = x_p * x_interval + x_interval / 2;
             a.Y = y_p * y_interval + y_interval / 2;
             return a;
                                                                                                                                                
-        } 
+        }
+
+        private bool AdjustFlag=false;                              //
+        private bool AdjustOnceFlag = false;
+        private int AdjustCount=0;
+        private List<Point> AdjustBasePoint = new List<Point>();
+        private List<Point> StandardPoint = new List<Point>(); // build standard point 
+
+        public static double[] MultiLine(double[] arrX, double[] arrY, int length, int dimension)//二元多次线性方程拟合曲线
+        {
+            int n = dimension + 1;                  //dimension次方程需要求 dimension+1个 系数
+            double[,] Guass = new double[n, n + 1];      //高斯矩阵 例如：y=a0+a1*x+a2*x*x
+            for (int i = 0; i < n; i++)
+            {
+                int j;
+                for (j = 0; j < n; j++)
+                {
+                    Guass[i, j] = SumArr(arrX, j + i, length);
+                }
+                Guass[i, j] = SumArr(arrX, i, arrY, 1, length);
+            }
+            return ComputGauss(Guass, n);
+        }
+        public static double SumArr(double[] arr, int n, int length) //求数组的元素的n次方的和
+        {
+            double s = 0;
+            for (int i = 0; i < length; i++)
+            {
+                if (arr[i] != 0 || n != 0)
+                    s = s + Math.Pow(arr[i], n);
+                else
+                    s = s + 1;
+            }
+            return s;
+        }
+        public static double SumArr(double[] arr1, int n1, double[] arr2, int n2, int length)
+        {
+            double s = 0;
+            for (int i = 0; i < length; i++)
+            {
+                if ((arr1[i] != 0 || n1 != 0) && (arr2[i] != 0 || n2 != 0))
+                    s = s + Math.Pow(arr1[i], n1) * Math.Pow(arr2[i], n2);
+                else
+                    s = s + 1;
+            }
+            return s;
+
+        }
+        public static double[] ComputGauss(double[,] Guass, int n)
+        {
+            int i, j;
+            int k, m;
+            double temp;
+            double max;
+            double s;
+            double[] x = new double[n];
+            for (i = 0; i < n; i++) x[i] = 0.0;//初始化
+
+            for (j = 0; j < n; j++)
+            {
+                max = 0;
+                k = j;
+                for (i = j; i < n; i++)
+                {
+                    if (Math.Abs(Guass[i, j]) > max)
+                    {
+                        max = Guass[i, j];
+                        k = i;
+                    }
+                }
+
+
+                if (k != j)
+                {
+                    for (m = j; m < n + 1; m++)
+                    {
+                        temp = Guass[j, m];
+                        Guass[j, m] = Guass[k, m];
+                        Guass[k, m] = temp;
+                    }
+                }
+                if (0 == max)
+                {
+                    // "此线性方程为奇异线性方程" 
+                    return x;
+                }
+
+                for (i = j + 1; i < n; i++)
+                {
+                    s = Guass[i, j];
+                    for (m = j; m < n + 1; m++)
+                    {
+                        Guass[i, m] = Guass[i, m] - Guass[j, m] * s / (Guass[j, j]);
+                    }
+                }
+
+            }//结束for (j=0;j<n;j++)
+
+            for (i = n - 1; i >= 0; i--)
+            {
+                s = 0;
+                for (j = i + 1; j < n; j++)
+                {
+                    s = s + Guass[i, j] * x[j];
+                }
+                x[i] = (Guass[i, n] - s) / Guass[i, i];
+            }
+            return x;
+        }//返回值是函数的系数
         private void DelegateMethod(object para)
         {
             Point point = (Point)para;
 
             int proportion =(int) (richTextBox.ActualHeight / richTextBox.ActualWidth);
-            int m = 25;
+            int m = 2;
             int n = m*proportion;
+            n = 2;
 
 
-      
-            point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
-            point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1 - point.Y);
+            /* 
+             point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
+             point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1 - point.Y);
 
-           // Console.WriteLine("{0},{1}", point.X, point.Y);
+            // Console.WriteLine("{0},{1}", point.X, point.Y);
 
 
-             point = DividePart(point, m, n, richTextBox.ActualHeight, richTextBox.ActualWidth);
-          //  Console.WriteLine("{0},{1}", point.X, point.Y);
+           //  Console.WriteLine("{0},{1}", point.X, point.Y);
 
-            //Console.WriteLine("X=" + point.X + "Y=" + point.Y);
-            //Console.WriteLine("aX=" + richTextBox.ActualWidth + "aY=" + richTextBox.ActualHeight);
-            point.X = Math.Max(point.X, image00.Width);
-            point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth);
-            point.Y = Math.Max(point.Y, image00.Height);
-            point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight);
+             //Console.WriteLine("X=" + point.X + "Y=" + point.Y);
+             //Console.WriteLine("aX=" + richTextBox.ActualWidth + "aY=" + richTextBox.ActualHeight);
+             point.X = Math.Max(point.X, image00.Width);
+             point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth);
+             point.Y = Math.Max(point.Y, image00.Height);
+             point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight);
+
+             var point2 = point;
+             point2.X = point2.X - image00.Width - c.Width / 2;
+             point2.Y = point2.Y - image00.Height - c.Height / 2;
+             LastMousePoint = point2;
+             */
+            Point point2;
+            point.Y = 1 - point.Y;
+            //*********************************************************************************************//
+            if (AdjustChoice == 0)
+            {
+                point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
+                point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * point.Y;
+
+                point.X = Math.Max(point.X, image00.Width);
+                point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth);
+                point.Y = Math.Max(point.Y, image00.Height);
+                point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight);
+                point2 = point;
+
+                point2.X = point2.X - image00.Width;
+                point2.Y = point2.Y - image00.Height;
+
+                LastMousePoint = point2;
+
+                point2.X = point2.X - c.Width / 2;
+                point2.Y = point2.Y - c.Height / 2;
+            }
+            else if (AdjustChoice == 1)
+            {
+
+
+                if (AdjustFlag == false)
+                {
+                    LastMousePoint = point;
+                    return;
+                }
+                else  //校准完毕之后，利用9 个AdjustBasePoint进行校准 
+                      //0  1  2
+                      //3  4  5
+                      //6  7  8
+                {
+
+                    // double []x_standard ={ 0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1 };
+                    //  double[] y_standard = { 0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1 };
+
+                    // double[] x_adjusted = new double[9];
+                    //  double[] y_adjusted = new double[9];
+                    //  for(int i = 0; i < 9; i++)
+                    //  {
+                    //      x_adjusted[i] = AdjustBasePoint[i].X;
+                    //      y_adjusted[i] = AdjustBasePoint[i].Y;
+                    // }
+                    //  double []x_line = MultiLine(x_adjusted, x_standard, 9, 2);
+                    //  double []y_line = MultiLine(y_adjusted, y_standard, 9, 2);
+
+                    //   point.X = x_line[0] + x_line[1] * point.X + x_line[2] *point.X * point.X;
+                    //   point.Y = y_line[0] + y_line[1] * point.Y + y_line[2] * point.Y * point.Y;
+                    //   point.Y = 1 - point.Y;
+
+
+                    point.X = ((point.X - AdjustBasePoint[0].X) / (AdjustBasePoint[2].X - AdjustBasePoint[0].X) +
+                     (point.X - AdjustBasePoint[3].X) / (AdjustBasePoint[5].X - AdjustBasePoint[3].X) +
+                        (point.X - AdjustBasePoint[6].X) / (AdjustBasePoint[8].X - AdjustBasePoint[6].X)) / 3;
+                    point.Y = ((point.Y - AdjustBasePoint[0].Y) / (AdjustBasePoint[6].Y - AdjustBasePoint[0].Y) +
+                        (point.Y - AdjustBasePoint[1].Y) / (AdjustBasePoint[7].Y - AdjustBasePoint[1].Y) +
+                      (point.Y - AdjustBasePoint[2].Y) / (AdjustBasePoint[8].Y - AdjustBasePoint[2].Y)) / 3;
+
+
+
+
+                    point.X = (image00.Width * 2 + richTextBox.ActualWidth) * point.X;
+                    point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * point.Y;
+
+                    point.X = Math.Max(point.X, image00.Width);
+                    point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth);
+                    point.Y = Math.Max(point.Y, image00.Height);
+                    point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight);
+                    point2 = point;
+
+                    point2.X = point2.X - image00.Width;
+                    point2.Y = point2.Y - image00.Height;
+
+                    LastMousePoint = point2;
+
+                    point2.X = point2.X - c.Width / 2;
+                    point2.Y = point2.Y - c.Height / 2;
+                    //   LastMousePoint = point2;
+                }
+            }
+            else
+            {
+
+            }
+            //********************************************************************************************//
+
+
+            
+
+
+           // point = DividePart(point, m, n, richTextBox.Height, richTextBox.ActualWidth);
             //Console.WriteLine("{0},{1}", point.X, point.Y);
             // lbl.Content = DateTime.Now.ToString();
             if (m_TextList != null && CIm.CHECKITEM == true && m_TextList.Count > 1)
@@ -143,6 +357,7 @@ namespace design814
                 int MouseLineth = 1 + ALLlineth - GetLineth(poz);
 
                 currNumber = FindNearesetString(MouseLineth, MousePointindex);
+                
                 //    TextRange range3 = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
                 //    string PPPretext = range3.Text;
                 if (preNumber != -1 && preNumber < m_TextList.Count)
@@ -221,10 +436,10 @@ namespace design814
         //    if (SpaceHoldFalg == false)
         //    {
                 //       var point2 = e.GetPosition(richTextBox);
-                var point2 = point;
-                LastMousePoint = point2;
-                Canvas.SetLeft(c, point2.X- image00.Width-c.Width/2); // centric point
-                Canvas.SetTop(c, point2.Y-image00.Height-c.Height/2);
+                
+                
+                Canvas.SetLeft(c, point2.X); // centric point
+                Canvas.SetTop(c, point2.Y);
         //    }
         }
 
@@ -454,6 +669,9 @@ namespace design814
         private Ellipse c = new Ellipse() { Height = /*180*/240, Width = /*280*/350, Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),StrokeThickness=2};//tiffiny蓝
         private Point LastMousePoint;
         private bool SpaceHoldFalg=false;    //true时进入圈内修改并固定圈
+        private int AdjustChoice = 0;//0 表示不校准，1表示使用线性9点校准，2表示使用向量校准
+        private Point[] NormalPoint = new Point[4];
+        private Vector3D[] NormalVector3D = new Vector3D[4];
         //       private bool MousemoveFlag = false;//true时候可以使用鼠标选中
         /// <summary>
         /// 改变关键字字体颜色
@@ -1131,6 +1349,19 @@ namespace design814
                 SpaceHoldFalg = false;
                 richTextBox.CaretPosition = richTextBox.Document.ContentEnd;
             }
+            if (e.Key == Key.V && AdjustFlag == false)//
+            {
+                AdjustBasePoint.Add(LastMousePoint);
+                AdjustCount++;
+                MessageBox.Show("已经校准" + AdjustCount.ToString() + "次");
+                if (AdjustCount == 9)
+                {
+                    AdjustFlag = true;
+                    MessageBox.Show("校准完毕！");
+                }
+                e.Handled = true;
+            }
+           // c.Visibility = Visibility.Hidden;
         }
 
       /*  private void richTextBox_PreviewKeyUp(object sender, KeyEventArgs e)
