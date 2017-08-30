@@ -367,7 +367,7 @@ namespace design814
 
 
                    // Vector3D vector3dnow = new Vector3D(0, 0, 0);//???
-                    Point point3 = XXX(vector3dnow);
+                    Point point3 = CalPoint(vector3dnow);
 
 
 
@@ -721,7 +721,7 @@ namespace design814
         private Ellipse c = new Ellipse() { Height = /*180*/240, Width = /*280*/350, Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),StrokeThickness=2};//tiffiny蓝
         private Point LastMousePoint;
         private bool SpaceHoldFalg=false;    //true时进入圈内修改并固定圈
-        private int AdjustChoice = 0;//0 表示不校准，1表示使用线性9点校准，2表示使用向量校准
+        private int AdjustChoice = 2;//0 表示不校准，1表示使用线性9点校准，2表示使用向量校准
         private Point[] NormalPoint = new Point[4];
         private Vector3D[] NormalVector3D = new Vector3D[4];
         private bool AdjustPointFlag= false;//表示向量校准的flag,4次校准之后为true
@@ -999,19 +999,31 @@ namespace design814
             double[] left = new double[6];
             left[0] = NormalVector3D[0].Y;
             left[1] = 0 - NormalVector3D[0].X;
-            left[2] = NormalVector3D[0].Z;
-            left[3] =0 -NormalVector3D[0].X;
-            left[4] = NormalVector3D[1].Y;
-            left[5] = 0-NormalVector3D[1].X;
-            var matrixA = new DenseMatrix(3, 2, left);
+            left[2] = 0;
+            left[3] = NormalVector3D[0].Z;
+            left[4] =0 -NormalVector3D[0].X;
+            left[5] = 0;
+            left[6] = NormalVector3D[1].Y;
+            
+            left[7] = 0-NormalVector3D[1].X;
+            left[8] = 0;
+            var matrixA = new DenseMatrix(3, 3, left);
+
             double []right = new double[3];
             right[0] = NormalVector3D[0].Y * NormalPoint[0].X - NormalVector3D[0].X * NormalPoint[0].Y; // all the point's z should be assigned to zero
             right[1] = NormalVector3D[0].Z * NormalPoint[0].X - NormalVector3D[0].X * 0;
             right[2] = NormalVector3D[1].Y * NormalPoint[1].X - NormalVector3D[1].X * NormalPoint[1].Y;
             var matrixB = new DenseMatrix(3, 1, right);
             var resultX = matrixA.LU().Solve(matrixB);
-            projection_screen.X = resultX[0,0];
-            projection_screen.Y = resultX[0, 1];
+            double z0 = resultX[0, 2];
+            double y0 = resultX[0, 1];
+            double x0 = resultX[0, 0];
+            Console.WriteLine(z0);
+            Console.WriteLine(x0);
+            Console.WriteLine(y0);
+            projection_screen.X = (0 - a.X) / a.Z + x0;
+
+            projection_screen.Y = (0 - a.X) / a.Z + x0;
             return projection_screen;
         }
         //寻找符合条件的string
