@@ -267,7 +267,10 @@ namespace design814
              LastMousePoint = point2;
              */
             Point point2 = new Point(0,0);
-            point.Y = 1 - point.Y;
+            if (AdjustChoice != 3)
+            {
+                point.Y = 1 - point.Y;
+            }
             //*********************************************************************************************//
             if (AdjustChoice == 0)
             {
@@ -287,6 +290,42 @@ namespace design814
 
                 point2.X = point2.X - c.Width / 2;
                 point2.Y = point2.Y - c.Height / 2;
+            }
+            else if (AdjustChoice == 3)
+            {
+            //    Console.WriteLine(AdjustFlag);
+                if (AdjustFlag == false)
+                {
+                    LastMousePoint = point;
+                    return;
+                } else
+                {
+                    ////////////////////
+                    double a = (NormalPoint[0].X - NormalPoint[1].X);
+                    double b = (NormalPoint[3].Y - NormalPoint[2].Y);
+                    point.X = 1-(point.X - NormalPoint[1].X) / a;
+                    point.Y = (point.Y - NormalPoint[2].Y) / b;
+                    Console.WriteLine("{0}, {1}", point.X, point.Y);
+
+                    point.X = (image00.Width * 2 + richTextBox.ActualWidth) * (point.X);
+                    point.Y = (image00.Height * 2 + richTextBox.ActualHeight) * point.Y;
+
+                    point.X = Math.Max(point.X, image00.Width);
+                    point.X = Math.Min(point.X, image00.Width + richTextBox.ActualWidth);
+                    point.Y = Math.Max(point.Y, image00.Height);
+                    point.Y = Math.Min(point.Y, image00.Height + richTextBox.ActualHeight);
+                    Console.WriteLine("Pointx{0}\t{1}", point.X, point.Y);
+                    point2 = point;
+
+                    point2.X = point2.X - image00.Width;
+                    point2.Y = point2.Y - image00.Height;
+
+                    LastMousePoint = point2;
+
+                    point2.X = point2.X - c.Width / 2;
+                    point2.Y = point2.Y - c.Height / 2;
+                }
+
             }
             else if (AdjustChoice == 1)
             {
@@ -327,7 +366,7 @@ namespace design814
                     point.Y = ((point.Y - AdjustBasePoint[0].Y) / (AdjustBasePoint[6].Y - AdjustBasePoint[0].Y) +
                         (point.Y - AdjustBasePoint[1].Y) / (AdjustBasePoint[7].Y - AdjustBasePoint[1].Y) +
                       (point.Y - AdjustBasePoint[2].Y) / (AdjustBasePoint[8].Y - AdjustBasePoint[2].Y)) / 3;
-
+                    
 
 
 
@@ -368,7 +407,10 @@ namespace design814
 
                    // Vector3D vector3dnow = new Vector3D(0, 0, 0);//???
                     Point point3 = CalPoint(vector3dnow);
-
+                    point3.X = point3.X + 0.5;
+                    point3.Y += 0.5;
+                    point3.X = (image00.Width * 2 + richTextBox.ActualWidth) * point3.X;
+                    point3.Y = (image00.Height * 2 + richTextBox.ActualHeight) * (1-point3.Y);
 
 
 
@@ -721,7 +763,7 @@ namespace design814
         private Ellipse c = new Ellipse() { Height = /*180*/240, Width = /*280*/350, Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),StrokeThickness=2};//tiffiny蓝
         private Point LastMousePoint;
         private bool SpaceHoldFalg=false;    //true时进入圈内修改并固定圈
-        private int AdjustChoice = 2;//0 表示不校准，1表示使用线性9点校准，2表示使用向量校准
+        private int AdjustChoice = 3;//0 表示不校准，1表示使用线性9点校准，2表示使用向量校准
         private Point[] NormalPoint = new Point[4];
         private Vector3D[] NormalVector3D = new Vector3D[4];
         private bool AdjustPointFlag= false;//表示向量校准的flag,4次校准之后为true
@@ -994,36 +1036,48 @@ namespace design814
         }
         private Point CalPoint(Vector3D a) // use liner algebra to calculate the intersection in 3 dimension and make it to z = x surface
         {
-            Point projection_screen = new Point();
+           //  Console.WriteLine("pointcal");
+            Point projection_screen = new Point(0, 0);
             // define left matrix
-            double[] left = new double[6];
+            double[] left = new double[9];
             left[0] = NormalVector3D[0].Y;
             left[1] = 0 - NormalVector3D[0].X;
             left[2] = 0;
             left[3] = NormalVector3D[0].Z;
-            left[4] =0 -NormalVector3D[0].X;
-            left[5] = 0;
+            left[4] = 0;
+            left[5] = 0 - NormalVector3D[0].X;
             left[6] = NormalVector3D[1].Y;
-            
-            left[7] = 0-NormalVector3D[1].X;
+
+            left[7] = 0 - NormalVector3D[1].X;
             left[8] = 0;
             var matrixA = new DenseMatrix(3, 3, left);
 
-            double []right = new double[3];
+            double[] right = new double[3];
             right[0] = NormalVector3D[0].Y * NormalPoint[0].X - NormalVector3D[0].X * NormalPoint[0].Y; // all the point's z should be assigned to zero
             right[1] = NormalVector3D[0].Z * NormalPoint[0].X - NormalVector3D[0].X * 0;
             right[2] = NormalVector3D[1].Y * NormalPoint[1].X - NormalVector3D[1].X * NormalPoint[1].Y;
+
+           // Console.WriteLine(right[0]);
+            // Console.WriteLine(right[1]);
+            // Console.WriteLine(right[2]);
             var matrixB = new DenseMatrix(3, 1, right);
-            var resultX = matrixA.LU().Solve(matrixB);
-            double z0 = resultX[0, 2];
-            double y0 = resultX[0, 1];
+            var resultX = matrixA.QR().Solve(matrixB);
             double x0 = resultX[0, 0];
-            Console.WriteLine(z0);
+            double z0 = resultX[1, 0];
+            double y0 = resultX[2, 0];
+
+
+            Console.WriteLine("one"); // 
             Console.WriteLine(x0);
             Console.WriteLine(y0);
-            projection_screen.X = (0 - a.X) / a.Z + x0;
 
-            projection_screen.Y = (0 - a.X) / a.Z + x0;
+            projection_screen.X = (0 - a.X)*z0 / a.Z + x0;
+
+            projection_screen.Y = (0 - a.Y)*z0 / a.Z + y0;
+            Console.WriteLine("RESULT");
+
+            Console.WriteLine(projection_screen.X);
+            Console.WriteLine(projection_screen.Y);
             return projection_screen;
         }
         //寻找符合条件的string
@@ -1463,22 +1517,37 @@ namespace design814
                     MessageBox.Show("向量方法已经校准" + AdjustCount.ToString() + "次");
                     if (AdjustCount == 4)
                     {
+                        NormalPoint[0].X = -0.5;
+                        NormalPoint[0].Y = 0.5;
+                        NormalPoint[1].X = 0.5;
+                        NormalPoint[1].Y = 0.5;
+                        NormalPoint[2].X = -0.5;
+                        NormalPoint[2].Y = -0.5;
+                        NormalPoint[3].X = 0.5;
+                        NormalPoint[3].Y = -0.5;
                         AdjustPointFlag = true;
                         MessageBox.Show("校准完毕！");
-                        NormalPoint[0].X = 0;
-                        NormalPoint[0].Y = 0;
-                        NormalPoint[1].X = ActualWidth;
-                        NormalPoint[1].Y = 0;
-                        NormalPoint[2].X = 0;
-                        NormalPoint[2].Y = ActualHeight;
-                        NormalPoint[3].X = ActualWidth;
-                        NormalPoint[3].Y = ActualHeight;
+                        AdjustCount = 0;
+                    }
+                    e.Handled = true;
+                }
+            } else if (AdjustChoice == 3)
+            {
+                if (e.Key == Key.V && AdjustFlag == false)//
+                {
+                    NormalPoint[AdjustCount] = LastMousePoint;
+                    AdjustCount++;
+                    MessageBox.Show("toudong方法已经校准" + AdjustCount.ToString() + "次");
+                    if (AdjustCount == 4)
+                    {
+                        AdjustFlag = true;
+                        MessageBox.Show("校准完毕！");
                         AdjustCount = 0;
                     }
                     e.Handled = true;
                 }
             }
-           // c.Visibility = Visibility.Hidden;
+            // c.Visibility = Visibility.Hidden;
         }
 
       /*  private void richTextBox_PreviewKeyUp(object sender, KeyEventArgs e)
